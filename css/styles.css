@@ -1,0 +1,41 @@
+html {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Roboto", "Arial", sans-serif;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.body__item {
+  padding: 0;
+}
+
+.body__link {
+  display: block;
+  padding: 0.75rem 1.25rem;
+}
+
+.movies {
+  height: 90vh;
+  overflow-y: auto;
+}
+
+.movie__img {
+  width: 221px;
+  height: 166px;
+  object-fit: cover;
+}
