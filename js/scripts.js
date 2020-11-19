@@ -9,7 +9,7 @@ var $$_ = function(selector, node = document) {
 // variables
 var elForm = $_('.form');
 var elSearch = $_('.form__search', elForm);
-var numberOfResultsBox = $_('.js-number-of-results');
+var elCatagories = $_('.js-catagories', elForm);
 
 var elMovies = $_('.movies');
 var elMovieWrapper = $_('.movie-wrapper');
@@ -83,4 +83,23 @@ elForm.addEventListener('submit', function(evt) {
 	else {
 		elMovies.innerHTML = "<span class=\"list-group-item list-group-item-action bg-danger text-white\">Topilmadi</span>";
 	}
+});
+
+// get catagorized movies
+
+elCatagories.addEventListener('change', function () {
+	elMovies.innerHTML = '';
+
+	var selectedCatagory = this.value;
+	editedMovies.filter(function(movie) {
+		var isCatagoryFind = movie.catagories.some(function(catagory) {
+			return catagory === selectedCatagory;
+		});
+		
+		if(isCatagoryFind) {
+			var newElMoviesTemplate = elMoviesTemplate.cloneNode(true);
+			newElMoviesTemplate.querySelector('.movies__item').textContent = movie.name;
+			elMovies.append(newElMoviesTemplate);
+		}
+	});
 });
