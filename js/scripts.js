@@ -2,7 +2,6 @@
 var $_ = function(selector, node = document) {
 	return document.querySelector(selector);
 }
-
 var $$_ = function(selector, node = document) {
 	return document.querySelectorAll(selector);
 }
@@ -10,9 +9,11 @@ var $$_ = function(selector, node = document) {
 // variables
 var elForm = $_('.form');
 var elSearch = $_('.form__search', elForm);
+var numberOfResultsBox = $_('.js-number-of-results');
+
 var elMovies = $_('.movies');
 var elMovieWrapper = $_('.movie-wrapper');
-var allMovies = movies.slice(0, 50);
+var allMovies = movies;
 var template = $_('#movie-template').content;
 
 // edit json with array map 
@@ -20,32 +21,42 @@ var editedMovies = allMovies.map(function(movie, index) {
 	return {
 		id: index + 1,
 		name: movie.Title,
-		img: movie.ytid,
+		img: `https://img.youtube.com/vi/${movie.ytid}/mqdefault.jpg`,
+		imgHd: `https://img.youtube.com/vi/${movie.ytid}/maxresdefault.jpg`,
+		youtubeId: movie.ytid,
 		year: movie.movie_year,
 		imdb: movie.imdb_rating,
-		catagory: movie.Categories.split('|')	
+		catagories: movie.Categories.split('|')	
 	}
 });
 
 // append movie to the template
-var appendMovies = function(movie) {
+var fetchAllMovies = function(movie) {
 	var newTemplateLi = template.cloneNode(true);
 
-	newTemplateLi.querySelector('.movie__img').src = `https://img.youtube.com/vi/${movie.img}/2.jpg`;
+	newTemplateLi.querySelector('.movie__img').src = movie.img;
 	newTemplateLi.querySelector('.movie__img').alt = movie.name;
 	newTemplateLi.querySelector('.movie__name').textContent = movie.name;
 	newTemplateLi.querySelector('.movie__year').textContent = movie.year;
 	newTemplateLi.querySelector('.movie__imdb').textContent = movie.imdb;
-	newTemplateLi.querySelector('.movie__catagory').textContent = movie.catagory.join(', ');
+	newTemplateLi.querySelector('.movie__catagories').textContent = movie.catagories.join(', ');
 	
 	return newTemplateLi;
 }
 
-editedMovies.forEach(function(movie) {
-	elMovieWrapper.append(appendMovies(movie));
+// create fragment box
+var movieFragment = document.createDocumentFragment();
+
+// warap all fetched movies to fragmentBox
+var partOfMovies = editedMovies.slice(0, 50);
+partOfMovies.forEach(function(movie) {	
+	movieFragment.append(fetchAllMovies(movie));
 });
 
-// search
+// add movieFragemnt to elMovieWrapper
+elMovieWrapper.append(movieFragment);
+
+// searching
 var elMoviesTemplate = $_('#movies-template').content;
 
 elForm.addEventListener('submit', function(evt) {
@@ -55,18 +66,21 @@ elForm.addEventListener('submit', function(evt) {
 	var regExpString = new RegExp(elSearch.value, 'gi');
 	var answer = true;
 	
-	editedMovies.forEach(function(movie) {
-		var findQuery = movie.name.toString().match(regExpString);	
-		var newElMoviesTemplate = elMoviesTemplate.cloneNode(true);
-			
-		if(Boolean(findQuery)) {
-			answer = false;
-			newElMoviesTemplate.querySelector('.movies__item').textContent = movie.name;
-			elMovies.append(newElMoviesTemplate);
-		}
+	// get matched movies with a searching word
+	var searchedMovies = editedMovies.filter(function(movie) {
+		return movie.name.toString().match(regExpString);
 	});
 
-	if(answer) {
-		elMovies.innerHTML = "<a class=\"list-group-item list-group-item-action bg-danger text-white\" href=\"#\">Topilmadi</a>";
+	// if searchedMovies has elements
+	if(searchedMovies.length > 0) {
+		searchedMovies.forEach(function(movie) {
+			var newElMoviesTemplate = elMoviesTemplate.cloneNode(true);
+			newElMoviesTemplate.querySelector('.movies__item').textContent = movie.name;
+			elMovies.append(newElMoviesTemplate);
+		});
+	}
+	// if no searched movie
+	else {
+		elMovies.innerHTML = "<span class=\"list-group-item list-group-item-action bg-danger text-white\">Topilmadi</span>";
 	}
 });
